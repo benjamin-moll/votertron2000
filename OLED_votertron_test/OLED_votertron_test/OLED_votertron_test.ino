@@ -73,7 +73,7 @@ void setup() {
 void loop() {
   button_check();
 
-  if (init_print == 0) {
+  if (question_state == 0) {
     display.clearDisplay();
     display.setTextSize(2);
     display.setTextColor(SSD1306_WHITE);
@@ -84,10 +84,10 @@ void loop() {
     display.display();
     delay(2000);
     question_state = 1;
-    init_print = 1;
   }
   if (question_state == 1) {
     delay(200);
+    Serial.println("got here");
     state_question();
   }
   else if (question_state == 2) {
