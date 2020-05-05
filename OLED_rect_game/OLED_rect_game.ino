@@ -16,14 +16,15 @@ int myRectX = 0;
 int myRectW = 10;
 int myRectH = 10;
 
+
+
 int obs1_x = SCREEN_WIDTH - 10;
 int obs1_y = 0;
 int obs1_height = 0;
 int obs1_width = 10;
 
-
 int obs2_x = SCREEN_WIDTH - 10;
-int obs2_y = SCREEN_HEIGHT-2;
+int obs2_y = SCREEN_HEIGHT - 2;
 int obs2_height = 0;
 int obs2_width = 10;
 
@@ -38,7 +39,9 @@ int draw_count2 = 0;
 float EMA_a = 0.6;
 int filtered_pot = 0;
 
-
+bool upSpeed = false;
+int leveledUp = 0;
+int current_level = 1;
 
 void setup() {
 
@@ -56,10 +59,22 @@ void setup() {
   display.clearDisplay();
 
 
+  obs1_x = constrain(obs1_x, 0, SCREEN_WIDTH);
+  obs2_x = constrain(obs2_x, 0, SCREEN_WIDTH);
+
 
 }
 
 void loop() {
+
+  if (leveledUp == 1) {
+    if (upSpeed) {
+      obs_speed += 1;
+      upSpeed = false;
+    }
+    leveledUp = 0;
+  }
+
 
   if (!collisionCheck()) {
     moveMyRect();
@@ -71,14 +86,14 @@ void loop() {
     gameOver();
   }
 
-//  Serial.print("my rect y:");
-//  Serial.println(myRectY+myRectH);
-//  Serial.print("bottom rect y:");
-//  Serial.println(obs2_real_y);
-//  Serial.print("top rect y:");
-//  Serial.print(obs1_real_y);
-//  Serial.println("");
-  
+  //  Serial.print("my rect y:");
+  //  Serial.println(myRectY+myRectH);
+  //  Serial.print("bottom rect y:");
+  //  Serial.println(obs2_real_y);
+  //  Serial.print("top rect y:");
+  //  Serial.print(obs1_real_y);
+  //  Serial.println("");
+
 
 }
 
@@ -122,7 +137,7 @@ int drawObstacleBottom(int x2) {
     draw_count2 = 1;
     delay(10);
   }
-  obs2_real_y = obs2_y-obs2_height;
+  obs2_real_y = obs2_y - obs2_height;
   display.fillRect(obs2_x, (SCREEN_HEIGHT - 20), obs2_width, obs2_height, SSD1306_WHITE);
   display.display();
 
@@ -137,9 +152,10 @@ int moveObstacle(int x_speed) {
     obs1_x -= x_speed;
     display.display();
   }
-  else if (obs1_x == 0) {
+  else if (obs1_x <= 0) {
     draw_count1 = 0;
     obs1_x = SCREEN_WIDTH - 10;
+    levelUp();
     drawObstacleTop(obs1_x);
   }
 
@@ -147,7 +163,7 @@ int moveObstacle(int x_speed) {
     obs2_x -= x_speed;
     display.display();
   }
-  else if (obs2_x == 0) {
+  else if (obs2_x <= 0) {
     draw_count2 = 0;
     obs2_x = SCREEN_WIDTH - 10;
     drawObstacleBottom(obs2_x);
@@ -157,13 +173,20 @@ int moveObstacle(int x_speed) {
 }
 
 bool collisionCheck() {
-  if ((myRectY <= obs1_real_y && obs1_x <= 10) || ((myRectY+myRectH) >= obs2_real_y && obs2_x <= 10)) {
+  if ((myRectY <= obs1_real_y && obs1_x <= 10) || ((myRectY + myRectH) >= obs2_real_y && obs2_x <= 10)) {
     return 1;
   }
   else {
     return 0;
 
   }
+}
+
+void levelUp() {
+  current_level++;
+  leveledUp = 1;
+  upSpeed = true;
+
 }
 
 void gameOver() {
