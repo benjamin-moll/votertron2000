@@ -10,12 +10,13 @@
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
+int lastButtonState = 0;
+bool pressed = 0;
 
 int myRectY = 30;
 int myRectX = 0;
 int myRectW = 10;
 int myRectH = 10;
-
 
 
 int obs1_x = SCREEN_WIDTH - 10;
@@ -43,6 +44,12 @@ bool upSpeed = false;
 int leveledUp = 0;
 int current_level = 1;
 
+bool time2start = 1;
+bool reset = false;
+
+unsigned long newTimer1 = 0;
+unsigned long newTimer2 = 0;
+
 void setup() {
 
   delay(100);
@@ -53,6 +60,7 @@ void setup() {
     for (;;); // Don't proceed, loop forever
   }
 
+  pinMode(2, INPUT_PULLUP);
   filtered_pot = analogRead(A0);
 
 
@@ -67,23 +75,26 @@ void setup() {
 
 void loop() {
 
-  if (leveledUp == 1) {
-    if (upSpeed) {
-      obs_speed += 1;
-      upSpeed = false;
+  if (time2start == 1) {
+    if (leveledUp == 1) {
+      if (upSpeed) {
+        obs_speed += 1;
+        upSpeed = false;
+      }
+      leveledUp = 0;
     }
-    leveledUp = 0;
-  }
 
 
-  if (!collisionCheck()) {
-    moveMyRect();
-    drawObstacleTop(obs1_x);
-    drawObstacleBottom(obs2_x);
-    moveObstacle(obs_speed);
-  }
-  else {
-    gameOver();
+    if (!collisionCheck()) {
+      moveMyRect();
+      drawObstacleTop(obs1_x);
+      drawObstacleBottom(obs2_x);
+      moveObstacle(obs_speed);
+    }
+    else {
+      time2start = 0;
+      gameOver();
+    }
   }
 
   //  Serial.print("my rect y:");
@@ -109,7 +120,7 @@ void moveMyRect() {
 }
 
 int height_select() {
-  obs1_height = random(3, 20);
+  obs1_height = random(5, 20);
   obs2_height = random(10, 20);
 
   return obs1_height, obs2_height;
@@ -189,11 +200,27 @@ void levelUp() {
 
 }
 
+
+
 void gameOver() {
-  display.clearDisplay();
-  display.setTextSize(2);
-  display.setTextColor(SSD1306_WHITE);
-  display.setCursor(10, 10);
-  display.print("YOU LOSE");
-  display.display();
+  delay(100);
+  unsigned long currentTime1 = millis();
+  if (currentTime1 - newTimer1 >= 3000) {
+    newTimer1 = currentTime1;
+    display.clearDisplay();
+    display.setTextSize(2);
+    display.setTextColor(SSD1306_WHITE);
+    display.setCursor(10, 10);
+    display.println("Your");
+    display.print("Score:");
+    display.println(current_level);
+    display.display();
+    delay(5000);
+    current_level = 1;
+    obs_speed = 2;
+    obs1_x = SCREEN_WIDTH - 10;
+    obs2_x = SCREEN_WIDTH - 10;
+    time2start = 1;
+  }
+
 }
