@@ -14,10 +14,11 @@ Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
 String states[] = {"AK", "AL", "AR", "AZ", "CA", "CO", "CT", "DC", "DE", "FL", "GA", "HI", "IA", "ID", "IL", "IN", "KS", "KY", "LA", "MA", "MD", "ME", "MI", "MN", "MO", "MS", "MT", "NC", "ND", "NE", "NH", "NJ", "NM", "NV", "NY", "OH", "OK", "OR", "PA", "RI", "SC", "SD", "TN", "TX", "UT", "VA", "VT", "WA", "WI", "WV", "WY"};
 String races[] = {"White", "Black", "Hispanic", "Asian", "Native American"};
-String candidates[] = {"Rep","Dem","Other"};
+String candidates[] = {"Republican", "Democrat", "Other"};
+
 //Timer calculated as follows:
 //White Timer = wait time data average from 2012 data
-//All minorities: (wait time+no early voting penalty of 5 min)*(percentage of voters of affected race in state)
+//All minorities: (wait time + if(no early voting penalty of 5 min))*(percentage of voters of affected race in state)
 
 
 float white_timers[] = {11.3, 3.7, 10.8, 12.9, 5.8, 6.3, 8.5, 4.9, 33.9, 45, 17.8, 7, 7.1, 11.7, 14.3, 7.5, 11.5, 8, 20.2, 3.7, 29.2, 8.8, 21.9, 6.2, 7.7, 12.7, 16.5, 5.8, 8.5, 10.7, 4.7, 4.2, 9.5, 13.5, 7.5, 11, 15.9, 0, 9.1, 11.7, 25.2, 4.3, 13.7, 12.4, 10.3, 2, 23.6, 0, 9.8, 8.2, 4.5};
@@ -31,14 +32,16 @@ int state_val = 0;
 int race_val = 0;
 int cand_val = 0;
 int new_race_val = 0;
+int new_cand_val = 0;
+
 //filter pot input for reliability
 float EMA_a = 0.6;      //initialization of EMA alpha
-int filtered_scroll = 0;          //initialization of EMA S
+int filtered_scroll = 0;
 
 int print_count = 0;
 int my_state = 0;
-int my_candidate= 0;
 String my_race = " ";
+String my_cand = " ";
 
 int buttonPin = 2;
 int lastButtonState = 0;
@@ -133,7 +136,7 @@ void loop() {
     display.println("your");
     display.println("choices");
     display.display();
-    delay(2000);
+//    delay(2000);
     question_state = 1;
     init_print = 1;
   }
@@ -280,9 +283,7 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      display.clearDisplay();
-      display.println("pick candidates");
-      display.display();
+      pickCandidate();
     }
   }
   //if your race is black
@@ -304,9 +305,7 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      display.clearDisplay();
-      display.println("pick candidates");
-      display.display();
+      pickCandidate();
     }
   }
   //if your race is hispanic
@@ -328,9 +327,7 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      display.clearDisplay();
-      display.println("pick candidates");
-      display.display();
+      pickCandidate();
     }
   }
   //if your race is asian
@@ -352,9 +349,7 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      display.clearDisplay();
-      display.println("pick candidates");
-      display.display();
+      pickCandidate();
     }
   }
   //if your race is native american
@@ -376,9 +371,8 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      display.clearDisplay();
-      display.println("pick candidates");
-      display.display();
+      
+      pickCandidate();
     }
   }
 
@@ -386,21 +380,20 @@ void wait_timer() {
 
 void pickCandidate() {
   cand_val = analogRead(A0);
-  if (pressed == 1 && button_state_change) {
-    my_candidate = filtered_scroll;
+  if (pressed >= 1 && button_state_change) {
+    my_cand = candidates[new_cand_val];
     button_state_change = false;
     cand_select = true;
   }
   else {
     if (!cand_select) {
-      cand_val = map(state_val, 0, 1023, 0, 2);
-      filtered_scroll = (EMA_a * cand_val) + ((1 - EMA_a) * filtered_scroll);
+      new_cand_val = map(cand_val, 0, 1023, 0, 2);
       display.clearDisplay();
       display.setTextSize(2); // Draw 2X-scale text
       display.setTextColor(SSD1306_WHITE);
       display.setCursor(10, 0);
-      display.print("Candidate: ");
-      display.print(candidates[filtered_scroll]);
+      display.print("Vote: ");
+      display.print(candidates[new_cand_val]);
       display.println("");
       display.display();
       delay(100);
@@ -412,25 +405,12 @@ void pickCandidate() {
       display.setTextSize(2); // Draw 2X-scale text
       display.setTextColor(SSD1306_WHITE);
       display.setCursor(10, 0);
-      display.println("Your Candidate:");
-      display.print(candidates[my_candidate]);
+      display.println("You voted:");
+      display.print(my_cand);
       display.println("");
       display.display();
-      unsigned long currentTime4 = millis();
-      if (currentTime4 - newTimer1 >= 10000) {
-        newTimer1 = currentTime4;
-        display.clearDisplay();
-        display.println("Congrats!");
-        display.println("You voted!");
-        display.display();
-      }
-
     }
   }
-
-
-
-
 
 }
 
