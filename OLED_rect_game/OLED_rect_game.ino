@@ -10,9 +10,6 @@
 #define OLED_RESET     4 // Reset pin # (or -1 if sharing Arduino reset pin)
 Adafruit_SSD1306 display(SCREEN_WIDTH, SCREEN_HEIGHT, &Wire, OLED_RESET);
 
-int lastButtonState = 0;
-bool pressed = 0;
-
 int myRectY = 30;
 int myRectX = 0;
 int myRectW = 10;
@@ -45,10 +42,8 @@ int leveledUp = 0;
 int current_level = 1;
 
 bool time2start = 1;
-bool reset = false;
 
-unsigned long newTimer1 = 0;
-unsigned long newTimer2 = 0;
+unsigned long newTimer3 = 0;
 
 void setup() {
 
@@ -60,7 +55,6 @@ void setup() {
     for (;;); // Don't proceed, loop forever
   }
 
-  pinMode(2, INPUT_PULLUP);
   filtered_pot = analogRead(A0);
 
 
@@ -96,15 +90,6 @@ void loop() {
       gameOver();
     }
   }
-
-  //  Serial.print("my rect y:");
-  //  Serial.println(myRectY+myRectH);
-  //  Serial.print("bottom rect y:");
-  //  Serial.println(obs2_real_y);
-  //  Serial.print("top rect y:");
-  //  Serial.print(obs1_real_y);
-  //  Serial.println("");
-
 
 }
 
@@ -204,9 +189,9 @@ void levelUp() {
 
 void gameOver() {
   delay(100);
-  unsigned long currentTime1 = millis();
-  if (currentTime1 - newTimer1 >= 3000) {
-    newTimer1 = currentTime1;
+  unsigned long currentTime3 = millis();
+  if (currentTime3 - newTimer3 >= 3000) {
+    newTimer3 = currentTime3;
     display.clearDisplay();
     display.setTextSize(2);
     display.setTextColor(SSD1306_WHITE);
