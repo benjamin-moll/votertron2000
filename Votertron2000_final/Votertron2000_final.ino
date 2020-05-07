@@ -136,7 +136,7 @@ void loop() {
     display.println("your");
     display.println("choices");
     display.display();
-//    delay(2000);
+    delay(2000);
     question_state = 1;
     init_print = 1;
   }
@@ -160,9 +160,11 @@ void loop() {
 
 void state_question() {
   state_val = analogRead(A0);
-  if (pressed == 1 && button_state_change) {
+
+  if (pressed >= 1 && button_state_change) {
     my_state = filtered_scroll;
     button_state_change = false;
+    pressed = 0;
     state_select = true;
   }
   else {
@@ -182,22 +184,10 @@ void state_question() {
 
 
     if (state_select) {
-      display.clearDisplay();
-      display.setTextSize(2); // Draw 2X-scale text
-      display.setTextColor(SSD1306_WHITE);
-      display.setCursor(10, 0);
-      display.println("Your State:");
-      display.print(states[my_state]);
-      display.println("");
-      display.display();
-      unsigned long currentTime2 = millis();
-      if (currentTime2 - newTimer1 >= 10000) {
-        newTimer1 = currentTime2;
         question_state = 2;
       }
 
     }
-  }
 }
 
 int button_check() {
@@ -224,24 +214,9 @@ String race_question() {
     button_state_change = false;
     pressed = 0;
     race_select = true;
-    if (race_select) {
-      display.clearDisplay();
-      display.setTextSize(2); // Draw 2X-scale text
-      display.setTextColor(SSD1306_WHITE);
-      display.setCursor(10, 0);
-      display.println("Your Race: ");
-      display.println(my_race);
-      display.display();
-      unsigned long currentTime1 = millis();
-      if (currentTime1 - newTimer2 >=  5000) {
-        newTimer2 = currentTime1;
-        question_state = 3;
-        race_select = false;
-      }
-
-    }
-
   }
+
+
   else {
     if (!race_select) {
       new_race_val = map(race_val, 0, 1023, 0, 4);
@@ -250,12 +225,16 @@ String race_question() {
       display.setTextColor(SSD1306_WHITE);
       display.setCursor(10, 0);
       display.print("Race: ");
-      display.print(races[new_race_val]);
+      display.println(races[new_race_val]);
       display.println("");
       display.display();
       delay(100);
     }
-
+    if (race_select) {
+      
+        question_state = 3;
+        
+    }
   }
   return my_race;
 }
@@ -371,7 +350,7 @@ void wait_timer() {
       }
     }
     else if (cand_pick == 1) {
-      
+
       pickCandidate();
     }
   }
@@ -392,8 +371,8 @@ void pickCandidate() {
       display.setTextSize(2); // Draw 2X-scale text
       display.setTextColor(SSD1306_WHITE);
       display.setCursor(10, 0);
-      display.print("Vote: ");
-      display.print(candidates[new_cand_val]);
+      display.println("Vote: ");
+      display.println(candidates[new_cand_val]);
       display.println("");
       display.display();
       delay(100);
@@ -404,7 +383,7 @@ void pickCandidate() {
       display.clearDisplay();
       display.setTextSize(2); // Draw 2X-scale text
       display.setTextColor(SSD1306_WHITE);
-      display.setCursor(10, 0);
+      display.setCursor(5, 0);
       display.println("You voted:");
       display.print(my_cand);
       display.println("");
