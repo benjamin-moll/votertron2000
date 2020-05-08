@@ -112,8 +112,8 @@ void setup() {
   }
 
   pinMode(buttonPin, INPUT_PULLUP);
-  filtered_scroll = analogRead(A0);  //set EMA S for t=1
-  filtered_pot = analogRead(A0);
+  filtered_scroll = analogRead(A1);  //set EMA S for t=1
+  filtered_pot = analogRead(A1);
 
   display.clearDisplay();
 
@@ -159,7 +159,7 @@ void loop() {
 }
 
 void state_question() {
-  state_val = analogRead(A0);
+  state_val = analogRead(A1);
 
   if (pressed >= 1 && button_state_change) {
     my_state = filtered_scroll;
@@ -207,7 +207,7 @@ int button_check() {
 }
 
 String race_question() {
-  race_val = analogRead(A0);
+  race_val = analogRead(A1);
 
   if (pressed > 1 && button_state_change) {
     my_race = races[new_race_val];
@@ -358,7 +358,7 @@ void wait_timer() {
 }
 
 void pickCandidate() {
-  cand_val = analogRead(A0);
+  cand_val = analogRead(A1);
   if (pressed >= 1 && button_state_change) {
     my_cand = candidates[new_cand_val];
     button_state_change = false;
@@ -421,7 +421,7 @@ void runGame() {
 }
 void moveMyRect() {
   display.clearDisplay();
-  int pot_pos = analogRead(A0);
+  int pot_pos = analogRead(A1);
   pot_pos = map(pot_pos, 0, 1023, 0, (SCREEN_HEIGHT - 10));
   filtered_pot = (EMA_a * pot_pos) + ((1 - EMA_a) * filtered_pot);
   myRectY = filtered_pot;
